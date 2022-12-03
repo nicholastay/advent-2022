@@ -15,6 +15,30 @@ enum class Outcome : int {
     Win = 6,
 };
 
+RPS winning_play(RPS r) {
+    switch (r) {
+    case RPS::Rock:
+        return RPS::Paper;
+    case RPS::Paper:
+        return RPS::Scissors;
+    case RPS::Scissors:
+        return RPS::Rock;
+    }
+    __builtin_unreachable();
+}
+
+RPS losing_play(RPS r) {
+    switch (r) {
+    case RPS::Rock:
+        return RPS::Scissors;
+    case RPS::Paper:
+        return RPS::Rock;
+    case RPS::Scissors:
+        return RPS::Paper;
+    }
+    __builtin_unreachable();
+}
+
 std::optional<RPS> parse_opponent(char x)
 {
     switch (x) {
@@ -29,7 +53,7 @@ std::optional<RPS> parse_opponent(char x)
     }
 }
 
-std::optional<RPS> parse_me(char x)
+std::optional<RPS> part1_parse_me(char x)
 {
     switch (x) {
     case 'X':
@@ -43,28 +67,33 @@ std::optional<RPS> parse_me(char x)
     }
 }
 
+std::optional<RPS> part2_parse_and_resolve_me(char x, RPS opponent)
+{
+    switch (x) {
+    case 'X':
+        // Need to lose
+        return losing_play(opponent);
+    case 'Y':
+        // Need to draw
+        return opponent;
+    case 'Z':
+        // Need to win
+        return winning_play(opponent);
+    default:
+        return {};
+    }
+}
+
 // Assume 'x' is the player, and the outcome is from the POV of that player
 Outcome game_outcome(RPS x, RPS y)
 {
     if (x == y)
         return Outcome::Draw;
 
-    if (x == RPS::Rock) {
-        if (y == RPS::Paper)
-            return Outcome::Loss;
-        else // y = Scissors
-            return Outcome::Win;
-    } else if (x == RPS::Paper) {
-        if (y == RPS::Rock)
-            return Outcome::Win;
-        else // y = Scissors
-            return Outcome::Loss;
-    } else { // x = Scissors
-        if (y == RPS::Paper)
-            return Outcome::Win;
-        else // y = Rock
-            return Outcome::Loss;
-    }
+    if (winning_play(y) == x)
+        return Outcome::Win;
+
+    return Outcome::Loss;
 }
 
 int main(int argc, char** argv)
@@ -76,18 +105,27 @@ int main(int argc, char** argv)
 
     std::ifstream file(argv[1]);
 
-    int score = 0;
+    int part1_score = 0;
+    int part2_score = 0;
+
     for (std::string line; std::getline(file, line); ) {
         assert(line.length() == 3);
         assert(line[1] == ' ');
 
         auto opponent = parse_opponent(line[0]).value();
-        auto me = parse_me(line[2]).value();
-        
-        auto outcome = game_outcome(me, opponent);
-        score += static_cast<int>(me) + static_cast<int>(outcome);
+
+        // Part 1 interpretation
+        auto part1_me = part1_parse_me(line[2]).value();
+        auto part1_outcome = game_outcome(part1_me, opponent);
+        part1_score += static_cast<int>(part1_me) + static_cast<int>(part1_outcome);
+
+        // Part 2 interpretation
+        auto part2_me = part2_parse_and_resolve_me(line[2], opponent).value();
+        auto part2_outcome = game_outcome(part2_me, opponent);
+        part2_score += static_cast<int>(part2_me) + static_cast<int>(part2_outcome);
     }
 
-    std::cout << "Final score: " << score << "\n";
+    std::cout << "Part 1 score: " << part1_score << "\n";
+    std::cout << "Part 2 score: " << part2_score << "\n";
     return 0;
 }
