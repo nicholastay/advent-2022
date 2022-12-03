@@ -4,9 +4,9 @@
 #include <optional>
 
 enum class RPS : int {
-    Rock = 1,
-    Paper = 2,
-    Scissors = 3,
+    Rock = 0,
+    Paper = 1,
+    Scissors = 2,
 };
 
 enum class Outcome : int {
@@ -16,27 +16,14 @@ enum class Outcome : int {
 };
 
 RPS winning_play(RPS r) {
-    switch (r) {
-    case RPS::Rock:
-        return RPS::Paper;
-    case RPS::Paper:
-        return RPS::Scissors;
-    case RPS::Scissors:
-        return RPS::Rock;
-    }
-    __builtin_unreachable();
+    // This is simply the next value along
+    return static_cast<RPS>((static_cast<int>(r) + 1) % 3);
 }
 
 RPS losing_play(RPS r) {
-    switch (r) {
-    case RPS::Rock:
-        return RPS::Scissors;
-    case RPS::Paper:
-        return RPS::Rock;
-    case RPS::Scissors:
-        return RPS::Paper;
-    }
-    __builtin_unreachable();
+    // This is simply the previous value
+    // We want Euclidean mod, so we have to -1+3 = +2
+    return static_cast<RPS>((static_cast<int>(r) + 2) % 3);
 }
 
 std::optional<RPS> parse_opponent(char x)
@@ -117,12 +104,12 @@ int main(int argc, char** argv)
         // Part 1 interpretation
         auto part1_me = part1_parse_me(line[2]).value();
         auto part1_outcome = game_outcome(part1_me, opponent);
-        part1_score += static_cast<int>(part1_me) + static_cast<int>(part1_outcome);
+        part1_score += static_cast<int>(part1_me) + 1 + static_cast<int>(part1_outcome);
 
         // Part 2 interpretation
         auto part2_me = part2_parse_and_resolve_me(line[2], opponent).value();
         auto part2_outcome = game_outcome(part2_me, opponent);
-        part2_score += static_cast<int>(part2_me) + static_cast<int>(part2_outcome);
+        part2_score += static_cast<int>(part2_me) + 1 + static_cast<int>(part2_outcome);
     }
 
     std::cout << "Part 1 score: " << part1_score << "\n";
