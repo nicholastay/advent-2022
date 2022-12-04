@@ -1,0 +1,45 @@
+#!/bin/sh
+
+set -e
+
+[ -z "$1" ] && echo "Usage: $0 [r(un)|b(uild)|c(reate)] <day01> \[...args\]" && exit 1
+[ -z "$2" ] && echo "Provide a day name" && exit 1
+
+DIR="$(dirname -- "$0")"
+
+subcmd="$1"
+name="$2"
+shift 2
+
+build() {
+    # Extracted into here so we can 'set echo' without a mess of if checks
+    set -x
+    c++ -Wall -Wextra -std=c++20 -pedantic -o "$DIR/$name/$name" "$DIR/$name/$name.cpp"
+}
+
+case "$subcmd" in
+    r)
+        [ ! -d "$DIR/$name" ] && echo "Day does not exist" && exit 1
+        build
+        "$DIR/$name/$name" "$@"
+        ;;
+
+    b)
+        [ ! -d "$DIR/$name" ] && echo "Day does not exist" && exit 1
+        build
+        ;;
+
+    c)
+        [ -d "$DIR/$name" ] && echo "Day already exists" && exit 1
+        mkdir "$DIR/$name"
+        touch "$DIR/$name/$name.cpp"
+        touch "$DIR/$name/example.txt"
+        touch "$DIR/$name/input.txt"
+        exec $EDITOR "$DIR/$name"
+        ;;
+
+    *)
+        echo "Invalid arguments provided"
+        exit 1
+        ;;
+esac
