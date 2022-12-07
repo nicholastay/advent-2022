@@ -34,6 +34,8 @@ int main(int argc, char** argv)
     for (size_t i = 0; i < crates; ++i)
         stacks.emplace_back();
 
+    std::vector<std::vector<char>> stacks_pt2;
+
     bool loading = true; // Loading pre-existing arrangement
     for (std::string line; std::getline(file, line); ) {
         if (loading) {
@@ -43,6 +45,9 @@ int main(int argc, char** argv)
                 // Reverse every stack so it's a... stack
                 for (auto& stack : stacks)
                     std::reverse(stack.begin(), stack.end());
+
+                // Setup clone for PART 2 (deep copy done by copy ctor already)
+                stacks_pt2 = stacks;
 
                 continue;
             }
@@ -87,7 +92,7 @@ int main(int argc, char** argv)
         }
         assert(from < crates && to < crates);
         
-        // Do the move
+        // PART 1: Do the move (1-by-1)
         auto& stack_from = stacks.at(from);
         auto& stack_to = stacks.at(to);
         for (int i = 0; i < times; ++i) {
@@ -96,8 +101,22 @@ int main(int argc, char** argv)
             stack_from.pop_back();
             stack_to.push_back(item);
         }
+        
+        // PART 2: Do the move (together)
+        auto& stack2_from = stacks_pt2.at(from);
+        auto& stack2_to = stacks_pt2.at(to);
+        assert(stack2_from.size() >= static_cast<size_t>(times));
+        // Note: range-based for doesn't work here since minusing iterators
+        for (auto it = stack2_from.end() - times; it != stack2_from.end(); ++it) {
+            stack2_to.push_back(*it);
+        }
+        // Not really clean, would prefer a better way here
+        for (int i = 0; i < times; ++i) {
+            stack2_from.pop_back();
+        }
     }
 
+    std::cout << "PART 1\n";
     std::cout << "Stack layout, from 1 to N:\n";
     for (auto const& stack : stacks) {
         std::cout << " ";
@@ -106,10 +125,24 @@ int main(int argc, char** argv)
         }
         std::cout << "\n";
     }
-
-    std::cout << "\n";
     std::cout << "Part 1 - Top of each stack: ";
     for (auto const& stack : stacks) {
+        std::cout << stack.back();
+    }
+    std::cout << "\n";
+
+    std::cout << "\n\n";
+    std::cout << "PART 2\n";
+    std::cout << "Stack layout, from 1 to N:\n";
+    for (auto const& stack : stacks_pt2) {
+        std::cout << " ";
+        for (auto c : stack) {
+            std::cout << c << " ";
+        }
+        std::cout << "\n";
+    }
+    std::cout << "Part 2 - Top of each stack: ";
+    for (auto const& stack : stacks_pt2) {
         std::cout << stack.back();
     }
     std::cout << "\n";
