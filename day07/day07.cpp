@@ -153,6 +153,29 @@ void part1(Directory& root_dir)
     std::cout << "Part 1 - Sum of <100,000 size dirs: " << r << "\n";
 }
 
+void part2_iterate(Directory& dir, uint64_t to_cleanup_space, uint64_t& smallest_cleanup_size)
+{
+    auto size = dir.size();
+    if (size >= to_cleanup_space && size < smallest_cleanup_size)
+        smallest_cleanup_size = size;
+
+    for (auto& d : dir.child_dirs())
+        part2_iterate(d, to_cleanup_space, smallest_cleanup_size);
+}
+void part2(Directory& root_dir, uint64_t total_space, uint64_t required_space)
+{
+    auto used_space = root_dir.size();
+    assert(used_space < total_space);
+
+    auto free_space = total_space - used_space;
+    assert(required_space > free_space);
+    uint64_t to_cleanup_space = required_space - free_space;
+
+    uint64_t smallest_cleanup_size = used_space; // Biggest would be delete the whole root, lol
+    part2_iterate(root_dir, to_cleanup_space, smallest_cleanup_size);
+    std::cout << "Part 2 - Size of smallest candidate directory: " << smallest_cleanup_size << "\n";
+}
+
 int main(int argc, char** argv)
 {
     if (argc < 2) {
@@ -170,4 +193,5 @@ int main(int argc, char** argv)
 
     dump(root_dir);
     part1(root_dir);
+    part2(root_dir, 70000000, 30000000);
 }
