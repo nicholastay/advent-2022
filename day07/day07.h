@@ -7,9 +7,22 @@
 #include <optional>
 #include <memory>
 
-// Forward
-class Directory;
-class File;
+class File {
+public:
+    File(std::string const name, uint64_t size)
+        : m_name(name)
+        , m_size(size)
+    {
+    }
+
+    std::string const& name() const { return m_name; }
+    uint64_t size() const { return m_size; }
+
+private:
+    std::string const m_name;
+    uint64_t m_size;
+};
+
 
 class Directory {
 public:
@@ -39,20 +52,3 @@ private:
     std::vector<Directory> m_child_dirs;
     std::vector<File> m_files;
 };
-
-class File {
-public:
-    File(std::string const name, uint64_t size)
-        : m_name(name)
-        , m_size(size)
-    {
-    }
-
-    std::string const& name() const { return m_name; }
-    uint64_t size() const { return m_size; }
-
-private:
-    std::string const m_name;
-    uint64_t m_size;
-};
-
