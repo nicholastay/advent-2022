@@ -14,7 +14,7 @@ shift 2
 build() {
     # Extracted into here so we can 'set echo' without a mess of if checks
     set -x
-    clang++ -Wall -Wextra -std=c++20 -pedantic -o "$DIR/$name/$name" "$DIR/$name/$name.cpp"
+    clang++ -g -Wall -Wextra -std=c++20 -pedantic -o "$DIR/$name/$name" "$DIR/$name/$name.cpp"
 }
 
 case "$subcmd" in
